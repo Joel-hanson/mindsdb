@@ -19,6 +19,7 @@ if api_response.status_code != 200:
 
 installer_version = api_response.text
 
+platform_arg = '--platform linux/arm64,linux/amd64'
 build_arg = f'--build-arg VERSION={installer_version}'
 
 if sys.argv[1] == 'release':
@@ -31,8 +32,7 @@ elif sys.argv[1] == 'beta':
 
 print(installer_version)
 command = (f"""
-        docker build -f {dockerfile} {build_arg} -t {container_name}:latest -t {container_name}:{installer_version} . &&
-        docker push {container_name} --all-tags
+        docker buildx build --no-cache --push -f {dockerfile} {platform_arg} {build_arg} -t {container_name}:latest -t {container_name}:{installer_version} .
       """)
 
 subprocess.run(command, shell=True, check=True)
